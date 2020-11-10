@@ -1,0 +1,102 @@
+---
+title: "Test Code for App"
+author: "Rachel Keller"
+date: "11/9/2020"
+output: html_document
+---
+
+Read in packages
+```{r}
+library(tidyverse)
+library(knitr)
+library(ggplot2)
+library(caret)
+```
+
+Read in data
+```{r}
+starData <- read_csv("stars.csv")
+starData$`Star type` <- as.factor(starData$`Star type`)
+```
+
+Data exploration
+Numeric summaries
+One way table for categorical variables
+```{r}
+kable(table(starData$`Star color`))
+```
+
+Two way table for categorical variables
+```{r}
+kable(table(starData$`Star color`, starData$`Star type`))
+```
+
+Five number summary for one quantitative variable
+```{r}
+summary(starData$Temperature)
+```
+
+Correlation for two quantitative variables
+```{r}
+cor(starData$Temperature, starData$Luminosity)
+```
+
+Covariance for two quantiative variables
+```{r}
+cov(starData$Temperature, starData$Luminosity)
+```
+
+Graphic summaries
+Barplot for one categorical variable
+```{r}
+g <- ggplot(data = starData, aes(x = `Star color`))
+g + geom_bar()
+```
+
+Barplot for two categorical variables
+```{r}
+g <- ggplot(data = starData, aes(x = `Star color`, fill = as.factor(`Star type`)))
+g + geom_bar()
+```
+
+Histogram for one quantitative variable
+```{r}
+g <- ggplot(data = starData, aes(x = Temperature))
+g + geom_histogram()
+```
+
+Modeling
+```{r}
+set.seed(1)
+train <- sample(1:nrow(starData), size = nrow(starData)*0.8)
+test <- dplyr::setdiff(1:nrow(starData), train)
+starDataTrain <- starData[train, ]
+starDataTest <- starData[test, ]
+```
+
+First model: knn
+```{r}
+knnFit <- train(`Star type` ~ ., data = starDataTrain,
+method = "knn",
+trControl = trainControl(method = "repeatedcv", repeats = 3),
+preProcess = c("center", "scale"))
+```
+
+```{r}
+pred <- predict(knnFit, newdata = starDataTest)
+confusionMatrix(pred, starDataTest$`Star type`)
+```
+
+Second model: random forest
+```{r}
+treeFit <- train(`Star type` ~ ., data = starDataTrain,
+method = "rf",
+trControl = trainControl(method = "repeatedcv", repeats = 3),
+preProcess = c("center", "scale"))
+```
+
+```{r}
+pred <- predict(treeFit, newdata = starDataTest)
+confusionMatrix(pred, starDataTest$`Star type`)
+```
+
