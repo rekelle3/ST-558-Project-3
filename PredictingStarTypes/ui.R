@@ -76,13 +76,38 @@ shinyUI(
                                           ),
                           
                           conditionalPanel(condition = "input.subset == `yes` && input.subsetVar == `Star type`",
-                                           checkboxGroupInput("starTypeOpt", "Values Desired:",
+                                           selectInput("starTypeOpt", "Values Desired:",
                                                               c("Brown Dwarf" = 0,
                                                                 "Red Dwarf" = 1,
                                                                 "White Dwarf" = 2,
                                                                 "Main Sequence" = 3,
                                                                 "Supergiant" = 4,
-                                                                "Hypergiant" = 5)))
-                        ))
+                                                                "Hypergiant" = 5))),
+                          
+                          conditionalPanel(condition = "input.subset == `yes` && input.subsetVar == `Star color`",
+                                           selectInput("starColorOpt", "Values Desired:",
+                                                              c("Blue" = "Blue",
+                                                                "Blue-white" = "Blue-white",
+                                                                "Orange" = "Orange",
+                                                                "Red" = "Red",
+                                                                "White" = "White",
+                                                                "Yellow" = "Yellow",
+                                                                "Yellow-white" = "Yellow-white"))),
+                          
+                          conditionalPanel(condition = "input.subset == `yes` && input.subsetVar == `Spectral Class`",
+                                           selectInput("starClassOpt", "Values Desired:",
+                                                              c("A" = "A",
+                                                                "B" = "B",
+                                                                "F" = "F",
+                                                                "K" = "K",
+                                                                "M" = "M",
+                                                                "O" = "O"))),
+                          
+                          downloadButton("downloadData", "Download")
+                        ),
+                        
+                        mainPanel(DT::dataTableOutput("starDataset"))
+                        
+                        )
 )
 )
