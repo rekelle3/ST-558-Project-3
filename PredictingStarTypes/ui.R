@@ -37,29 +37,103 @@ shinyUI(
                                                            "Histogram for One Variable" = "onehist",
                                                            "Histogram for Two Variables" = "twohist"))),
                             
-                            conditionalPanel(condition = "input.numType == `twoway` || input.numType == `cor` || input.numType == `cov` || input.graphType == `twobar` || input.graphType ==`twohist`",
+                            conditionalPanel(condition = "input.numType == `twoway` || input.sumType == `twobar`",
+                                             selectInput("varOne", "First Variable:",
+                                                         c("Star Type" = "Star type",
+                                                           "Star Color" = "Star color",
+                                                           "Spectral Class" = "Spectral Class")),
+                                             selectInput("varTwo", "Second Variable:",
+                                                         c("Star Type" = "Star type",
+                                                           "Star Color" = "Star color",
+                                                           "Spectral Class" = "Spectral Class"))),
+                            
+                            conditionalPanel(condition = "input.numType == `oneway` || input.sumType == `onebar`",
+                                             selectInput("varOne", "First Variable:",
+                                                         c("Star Type" = "Star type",
+                                                           "Star Color" = "Star color",
+                                                           "Spectral Class" = "Spectral Class"))),
+                            
+                            conditionalPanel(condition = "input.numType == `fivenum` || input.sumType == `onehist`",
                                              selectInput("varOne", "First Variable:",
                                                          c("Temperature" = "Temperature",
                                                            "Luminosity" = "Luminosity",
                                                            "Radius" = "Radius",
-                                                           "Absolute Magnitude" = "Absolute magnitude",
-                                                           "Star Type" = "Star type",
-                                                           "Star Color" = "Star color",
-                                                           "Spectral Class" = "Spectral Class"))),
+                                                           "Absolute Magnitude" = "Absolute magnitude"))),
                             
-                            conditionalPanel(condition = "input.numType == `twoway` || input.numType == `cor` || input.numType == `cov` || input.graphType == `twobar` || input.graphType ==`twohist`",
+                            conditionalPanel(condition = "input.numType == `cor` || input.numType == `cov`",
+                                             selectInput("varOne", "First Variable:",
+                                                         c("Temperature" = "Temperature",
+                                                           "Luminosity" = "Luminosity",
+                                                           "Radius" = "Radius",
+                                                           "Absolute Magnitude" = "Absolute magnitude")),
                                              selectInput("varTwo", "Second Variable:",
                                                          c("Temperature" = "Temperature",
                                                            "Luminosity" = "Luminosity",
                                                            "Radius" = "Radius",
-                                                           "Absolute Magnitude" = "Absolute magnitude",
-                                                           "Star Type" = "Star type",
+                                                           "Absolute Magnitude" = "Absolute magnitude"))),
+                            
+                            conditionalPanel(condition = "input.sumType == `twohist`",
+                                             selectInput("varOne", "First Variable:",
+                                                         c("Temperature" = "Temperature",
+                                                           "Luminosity" = "Luminosity",
+                                                           "Radius" = "Radius",
+                                                           "Absolute Magnitude" = "Absolute magnitude")),
+                                             selectInput("varTwo", "Second Variable:",
+                                                         c("Star Type" = "Star type",
                                                            "Star Color" = "Star color",
                                                            "Spectral Class" = "Spectral Class")))
                             
-                        )),
+                        ),
+                      
+                        mainPanel(
+                          
+                          conditionalPanel(condition = "input.sumType == `graph`",
+                                           plotOutput("summarygraphic")),
+                          
+                          conditionalPanel(condition = "input.sumType == `num`",
+                                           verbatimTextOutput("summarynumeric"))
+                          
+                                  )
+                        
+                        ),
                tabPanel("Clustering"),
-               tabPanel("Modeling"),
+               tabPanel("Modeling", 
+                        
+                        sidebarPanel(
+                          
+                          selectInput("modelType", "Supervised Learning Model Desired:",
+                                      c("Multiple Linear Regression" = "multlinreg",
+                                        "Random Forest" = "randfor")),
+                          
+                          checkboxInput("uservalues", "Check box to select model settings"),
+                          
+                          conditionalPanel(condition = "input.uservalues == 1 && input.modelType == `multlinreg`",
+                                           
+                                           checkboxGroupInput("variables", "Variables to Include in Model",
+                                                       c("Temperature" = "Temperature",
+                                                         "Luminosity" = "Luminosity",
+                                                         "Radius" = "Radius",
+                                                         "Absolute Magnitude" = "Absolute magnitude",
+                                                         "Star Color" = "Star color",
+                                                         "Spectral Class" = "Spectral Class"))
+                                           
+                                           ),
+                          
+                          conditionalPanel(condition = "input.uservalues == 1 && input.modelType == `randfor`",
+                                           
+                                           checkboxGroupInput("variables", "Variables to Include in Model",
+                                                              c("Temperature" = "Temperature",
+                                                                "Luminosity" = "Luminosity",
+                                                                "Radius" = "Radius",
+                                                                "Absolute Magnitude" = "Absolute magnitude",
+                                                                "Stary Color" = "Star color",
+                                                                "Spectral Class" = "Spectral Class"))
+                                           
+                          )
+        
+                        )
+                        
+                        ),
                tabPanel("Save Data",
                         
                         sidebarPanel(
