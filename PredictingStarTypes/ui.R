@@ -19,12 +19,14 @@ shinyUI(
                         sidebarPanel(
                           
                             selectInput("sumType", "Type of Summary Desired:",
-                                        c("Numeric" = "num",
+                                        c(" " = " ",
+                                          "Numeric" = "num",
                                           "Graphical" = "graph")),
                             
                             conditionalPanel(condition = "input.sumType == `num`",
                                              selectInput("numType", "Type of Numeric Summary Desired:",
-                                                         c("One Way Contingency Table" = "oneway",
+                                                         c(" " = " ",
+                                                           "One Way Contingency Table" = "oneway",
                                                            "Two Way Contingency Table" = "twoway",
                                                            "Five Number Summary" = "fivenum",
                                                            "Correlation" = "cor",
@@ -32,53 +34,54 @@ shinyUI(
                             
                             conditionalPanel(condition = "input.sumType == `graph`",
                                              selectInput("graphType", "Type of Graphical Summary Desired:",
-                                                         c("Barplot for One Variable" = "onebar",
+                                                         c(" " = " ",
+                                                           "Barplot for One Variable" = "onebar",
                                                            "Barplot for Two Variables" = "twobar",
                                                            "Histogram for One Variable" = "onehist",
                                                            "Histogram for Two Variables" = "twohist"))),
                             
-                            conditionalPanel(condition = "input.numType == `twoway` || input.sumType == `twobar`",
-                                             selectInput("varOne", "First Variable:",
+                            conditionalPanel(condition = "input.numType == `twoway` || input.graphType == `twobar`",
+                                             selectInput("varOneA", "First Variable:",
                                                          c("Star Type" = "Star type",
                                                            "Star Color" = "Star color",
                                                            "Spectral Class" = "Spectral Class")),
-                                             selectInput("varTwo", "Second Variable:",
+                                             selectInput("varTwoA", "Second Variable:",
                                                          c("Star Type" = "Star type",
                                                            "Star Color" = "Star color",
                                                            "Spectral Class" = "Spectral Class"))),
                             
-                            conditionalPanel(condition = "input.numType == `oneway` || input.sumType == `onebar`",
-                                             selectInput("varOne", "First Variable:",
+                            conditionalPanel(condition = "input.numType == `oneway` || input.graphType == `onebar`",
+                                             selectInput("varOneB", "First Variable:",
                                                          c("Star Type" = "Star type",
                                                            "Star Color" = "Star color",
                                                            "Spectral Class" = "Spectral Class"))),
                             
-                            conditionalPanel(condition = "input.numType == `fivenum` || input.sumType == `onehist`",
-                                             selectInput("varOne", "First Variable:",
+                            conditionalPanel(condition = "input.numType == `fivenum` || input.graphType == `onehist`",
+                                             selectInput("varOneC", "First Variable:",
                                                          c("Temperature" = "Temperature",
                                                            "Luminosity" = "Luminosity",
                                                            "Radius" = "Radius",
                                                            "Absolute Magnitude" = "Absolute magnitude"))),
                             
                             conditionalPanel(condition = "input.numType == `cor` || input.numType == `cov`",
-                                             selectInput("varOne", "First Variable:",
+                                             selectInput("varOneD", "First Variable:",
                                                          c("Temperature" = "Temperature",
                                                            "Luminosity" = "Luminosity",
                                                            "Radius" = "Radius",
                                                            "Absolute Magnitude" = "Absolute magnitude")),
-                                             selectInput("varTwo", "Second Variable:",
+                                             selectInput("varTwoD", "Second Variable:",
                                                          c("Temperature" = "Temperature",
                                                            "Luminosity" = "Luminosity",
                                                            "Radius" = "Radius",
                                                            "Absolute Magnitude" = "Absolute magnitude"))),
                             
-                            conditionalPanel(condition = "input.sumType == `twohist`",
-                                             selectInput("varOne", "First Variable:",
+                            conditionalPanel(condition = "input.graphType == `twohist`",
+                                             selectInput("varOneE", "First Variable:",
                                                          c("Temperature" = "Temperature",
                                                            "Luminosity" = "Luminosity",
                                                            "Radius" = "Radius",
                                                            "Absolute Magnitude" = "Absolute magnitude")),
-                                             selectInput("varTwo", "Second Variable:",
+                                             selectInput("varTwoE", "Second Variable:",
                                                          c("Star Type" = "Star type",
                                                            "Star Color" = "Star color",
                                                            "Spectral Class" = "Spectral Class")))
@@ -96,7 +99,36 @@ shinyUI(
                                   )
                         
                         ),
-               tabPanel("Clustering"),
+               tabPanel("Clustering",
+                        
+                        sidebarPanel(
+                          
+                          selectInput("clusteringMethod", "Clustering Method Desired:",
+                                      c("K-Means Clustering" = "kmeans",
+                                        "Hierarchical Clustering" = "hierarchical")),
+                          
+                          conditionalPanel(condition = "input.clusteringMethod == `kmeans`",
+                                           selectInput("varOneF", "First Variable:",
+                                                       c("Temperature" = "Temperature",
+                                                         "Luminosity" = "Luminosity",
+                                                         "Radius" = "Radius",
+                                                         "Absolute Magnitude" = "Absolute magnitude")),
+                                           
+                                           selectInput("varTwoF", "Second Variable:",
+                                                       c("Temperature" = "Temperature",
+                                                         "Luminosity" = "Luminosity",
+                                                         "Radius" = "Radius",
+                                                         "Absolute Magnitude" = "Absolute magnitude"))),
+                          
+                          conditionalPanel(condition = "input.clusteringMethod == `hierarchical`")
+                          
+                          ),
+                        
+                        mainPanel(verbatimTextOutput("clusterout")
+                          
+                        )
+                        
+                        ),
                tabPanel("Modeling", 
                         
                         sidebarPanel(
