@@ -1,4 +1,4 @@
-Temperature,Luminosity,Radius,Absolute magnitude,Star type,Star color,Spectral Class
+Temperature,Luminosity,Radius,AbsoluteMagnitude,StarType,StarColor,SpectralClass
 8570,0.00081,0.0097,14.2,2,Blue-white,A
 9675,0.00045,0.0109,13.98,2,Blue-white,A
 8924,0.00028,0.00879,14.87,2,Blue-white,A

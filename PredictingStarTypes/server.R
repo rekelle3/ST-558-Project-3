@@ -1,14 +1,20 @@
 library(shiny)
 library(tidyverse)
+library(caret)
+library(shinyjs)
+library(factoextra)
 
 # Define server logic required to draw a histogram
-shinyServer(function(input, output) {
+shinyServer(function(input, output, session) {
 
     starData <- read_csv("stars.csv")
-    starData$`Star type` <- as.factor(starData$`Star type`)
+    starData$`StarType` <- as.factor(starData$`StarType`)
+    
+    
+observeEvent(input$displaySum, {
     
     output$summarynumeric <- renderPrint({
-
+        
         if(input$numType == "oneway"){
             table(starData[[input$varOneB]])
         } else if (input$numType == "twoway"){
@@ -16,9 +22,9 @@ shinyServer(function(input, output) {
         } else if (input$numType == "fivenum"){
             summary(starData[[input$varOneC]])
         } else if (input$numType == "cor"){
-           cor(starData[[input$varOneD]], starData[[input$varTwoD]]) 
+            cor(starData[[input$varOneD]], starData[[input$varTwoD]]) 
         } else {
-           cov(starData[[input$varOneD]], starData[[input$varTwoD]]) 
+            cov(starData[[input$varOneD]], starData[[input$varTwoD]]) 
         }
     })
     
@@ -40,21 +46,110 @@ shinyServer(function(input, output) {
         
     })
     
-    output$clusterout <- renderPrint({
-        
+})
+
+observeEvent(input$resetSum, {
+    
+    updateSelectInput(session, "sumType", selected = " ")
+    updateSelectInput(session, "numType", selected = " ")
+    updateSelectInput(session, "graphType", selected = " ")
+    updateSelectInput(session, "varOneA", selected = " ")
+    updateSelectInput(session, "varTwoA", selected = " ")
+    updateSelectInput(session, "varOneB", selected = " ")
+    updateSelectInput(session, "varOneC", selected = " ")
+    updateSelectInput(session, "varOneD", selected = " ")
+    updateSelectInput(session, "varTwoD", selected = " ")
+    updateSelectInput(session, "varOneE", selected = " ")
+    updateSelectInput(session, "varTwoE", selected = " ")
+    
+})
+
+
+getCluster <- reactive({
+    if(input$clusteringMethod == "kmeans"){
         set.seed(1)
         starCluster <- kmeans(starData[, c(input$varOneF, input$varTwoF)], 6, nstart = 40)
+        starCluster 
+    } else {
+        set.seed(1)
+        starCluster <- hclust(dist(starData[, c(input$varOneG, input$varTwoG)]))
         starCluster
+    }
+})
+    
+    
+    output$clusterout <- renderPrint({
+        getCluster()
+    })
+    
+    
+    output$clusterden <- renderPlot({
+        if(input$clusteringMethod == "hierarchical"){
+            plot(getCluster())
+        } 
+    })
+    
+    set.seed(1)
+    train <- sample(1:nrow(starData), size = nrow(starData)*0.8)
+    test <- dplyr::setdiff(1:nrow(starData), train)
+    starDataTrain <- starData[train, ]
+    starDataTest <- starData[test, ]
+    
+    getFormula <- eventReactive(
+        input$variables,
+        {
+        as.formula(paste0("StarType ~ ",paste0(input$variables, collapse="+")))
+    })
+    
+    output$modelout <- renderPrint({
+        
+        if(input$uservalues == 1){
+            
+            if(input$modelType == "knn"){
+                knnFit <- train(StarType ~ ., data = starDataTrain,
+                                method = "knn",
+                                trControl = trainControl(method = "repeatedcv", repeats = 3),
+                                preProcess = c("center", "scale"))
+                pred <- predict(knnFit, newdata = starDataTest)
+                confusionMatrix(pred, starDataTest$`StarType`)
+                
+            } else {
+                rfFit <- train(StarType ~ ., data = starDataTrain,
+                               method = "rf",
+                               trControl = trainControl(method = "repeatedcv", repeats = 3),
+                               preProcess = c("center", "scale"))
+                pred <- predict(rfFit, newdata = starDataTest)
+                confusionMatrix(pred, starDataTest$`StarType`)
+            }
+        } else{
+            if(input$modelType == "knn"){
+                knnFit <- train(getFormula(), data = starDataTrain,
+                                method = "knn",
+                                trControl = trainControl(method = "repeatedcv", repeats = 3),
+                                preProcess = c("center", "scale"))
+                pred <- predict(knnFit, newdata = starDataTest)
+                confusionMatrix(pred, starDataTest$`StarType`)
+                
+            } else {
+                rfFit <- train(getFormula(), data = starDataTrain,
+                               method = "rf",
+                               trControl = trainControl(method = "repeatedcv", repeats = 3),
+                               preProcess = c("center", "scale"))
+                pred <- predict(rfFit, newdata = starDataTest)
+                confusionMatrix(pred, starDataTest$`StarType`)
+            }
+        }
+        
     })
     
     getData <- reactive({
         if(input$subset == "yes"){
-            if(input$subsetVar == "Star type"){
-                newStarData <- starData %>% filter(`Star type` == input$starTypeOpt)
+            if(input$subsetVar == "StarType"){
+                newStarData <- starData %>% filter(`StarType` == input$starTypeOpt)
             } else if (input$subsetVar == "Star color"){
-                newStarData <- starData %>% filter(`Star color` == input$starColorOpt)
+                newStarData <- starData %>% filter(`StarColor` == input$starColorOpt)
             } else {
-                newStarData <- starData %>% filter(`Spectral Class` == input$starClassOpt)
+                newStarData <- starData %>% filter(`SpectralClass` == input$starClassOpt)
             }
         } else {
             newStarData <- starData
