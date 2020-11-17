@@ -101,45 +101,62 @@ getCluster <- reactive({
         as.formula(paste0("StarType ~ ",paste0(input$variables, collapse="+")))
     })
     
-    output$modelout <- renderPrint({
-        
+    getModel <- reactive({
         if(input$uservalues == 1){
-            
-            if(input$modelType == "knn"){
-                knnFit <- train(StarType ~ ., data = starDataTrain,
-                                method = "knn",
-                                trControl = trainControl(method = "repeatedcv", repeats = 3),
-                                preProcess = c("center", "scale"))
-                pred <- predict(knnFit, newdata = starDataTest)
-                confusionMatrix(pred, starDataTest$`StarType`)
-                
-            } else {
-                rfFit <- train(StarType ~ ., data = starDataTrain,
-                               method = "rf",
-                               trControl = trainControl(method = "repeatedcv", repeats = 3),
-                               preProcess = c("center", "scale"))
-                pred <- predict(rfFit, newdata = starDataTest)
-                confusionMatrix(pred, starDataTest$`StarType`)
-            }
-        } else{
             if(input$modelType == "knn"){
                 knnFit <- train(getFormula(), data = starDataTrain,
                                 method = "knn",
                                 trControl = trainControl(method = "repeatedcv", repeats = 3),
                                 preProcess = c("center", "scale"))
-                pred <- predict(knnFit, newdata = starDataTest)
-                confusionMatrix(pred, starDataTest$`StarType`)
-                
             } else {
                 rfFit <- train(getFormula(), data = starDataTrain,
                                method = "rf",
                                trControl = trainControl(method = "repeatedcv", repeats = 3),
                                preProcess = c("center", "scale"))
-                pred <- predict(rfFit, newdata = starDataTest)
+            }
+        } else {
+            if(input$modelType == "knn"){
+                knnFit <- train(StarType ~ ., data = starDataTrain,
+                                method = "knn",
+                                trControl = trainControl(method = "repeatedcv", repeats = 3),
+                                preProcess = c("center", "scale"))
+            } else {
+                rfFit <- train(StarType ~ ., data = starDataTrain,
+                               method = "rf",
+                               trControl = trainControl(method = "repeatedcv", repeats = 3),
+                               preProcess = c("center", "scale"))
+            }
+        } 
+    })
+    
+    output$modelout <- renderPrint({
+        
+        if(input$uservalues == 1){
+            
+            if(input$modelType == "knn"){
+                pred <- predict(getModel(), newdata = starDataTest)
+                confusionMatrix(pred, starDataTest$`StarType`)
+                
+            } else {
+                pred <- predict(getModel(), newdata = starDataTest)
+                confusionMatrix(pred, starDataTest$`StarType`)
+            }
+        } else{
+            if(input$modelType == "knn"){
+                
+                pred <- predict(getModel(), newdata = starDataTest)
+                confusionMatrix(pred, starDataTest$`StarType`)
+                
+            } else {
+                pred <- predict(getModel(), newdata = starDataTest)
                 confusionMatrix(pred, starDataTest$`StarType`)
             }
         }
         
+    })
+    
+    output$predOut <- renderPrint({
+        predict(getModel(), data.frame(Temperature = input$tempInput, Luminosity = input$lumInput, Radius = input$radInput, AbsoluteMagnitude = input$absmagInput, StarColor = input$colorInput, SpectralClass = input$classInput))
     })
     
     getData <- reactive({

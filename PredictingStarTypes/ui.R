@@ -209,7 +209,10 @@ shinyUI(
                                                          "K" = "K",
                                                          "M" = "M",
                                                          "O" = "O")),
-                                           actionButton("pred", "Display Prediction"))
+                                           actionButton("pred", "Display Prediction")),
+                          
+                          conditionalPanel("input.pred == 1",
+                                           verbatimTextOutput("predOut"))
         
                         ),
                         
