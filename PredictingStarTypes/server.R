@@ -1,8 +1,7 @@
 library(shiny)
 library(tidyverse)
 library(caret)
-library(shinyjs)
-library(factoextra)
+library(mathjaxr)
 
 # Define server logic required to draw a histogram
 shinyServer(function(input, output, session) {
@@ -127,6 +126,15 @@ getCluster <- reactive({
                                preProcess = c("center", "scale"))
             }
         } 
+    })
+    
+    output$formulaOut <- renderUI({
+        if(input$uservalues == 1){
+            withMathJax(paste0("StarType ~ ",paste0(input$variables, collapse="+")))
+        } else {
+            "StarType ~ ."
+        }
+        
     })
     
     output$modelout <- renderPrint({

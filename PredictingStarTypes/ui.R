@@ -8,11 +8,52 @@ shinyUI(
                         
                         titlePanel("Predicting Star Types App"),
                         
-                        mainPanel("Description of Data",
+                        mainPanel(h3("ST 558 - Rachel Keller"),
+                                  h3("Description of Data"),
                                   br(),
-                                  "Purpose of App",
+                                  "The response variable contained in this data set is ",
+                                  code("StarType"),
+                                  ". The predictors that will be used for our classification models are ",
+                                  code("Temperature"),
+                                  ", ",
+                                  code("Luminosity"),
+                                  ", ",
+                                  code("Radius"),
+                                  ", ",
+                                  code("AbsoluteMagnitude"),
+                                  ", ",
+                                  code("StarColor"),
+                                  ", and ",
+                                  code("StarClass"),
+                                  ". Below is a description of these variables and the units of each variable: ",
+                                  tags$ul(tags$li("Absolute Temperature: surface temperature of star (in K)"),
+                                     tags$li("Relative Luminosity: luminosity of star with respect to the Sun (in L/Lo)"),
+                                     tags$li("Relative Radius: radius of star with respect to the Sun (in R/Ro)"),
+                                     tags$li("Absolute Magnitude: absolute visual magnitude of star (in Mv)"),
+                                     tags$li("Star Color: color of star using spectral analysis (Blue, Blue-white, White, Yellow-white, Yellow, Orange, Red)"),
+                                     tags$li("Spectral Class: spectral class of star (A, B, F, K, M, O)"),
+                                     tags$li("Star Type: type of star (Brown Dwarf  = 0, Red Dwarf = 1, White Dwarf = 2, Main Sequence = 3, Supergiant = 4, Hypergiant = 5)")),
+                                  "The .csv file read in as the data set for this applet can be
+                                  obtained from the following link: ",
+                                  a("Data", href="https://www.kaggle.com/deepu1109/star-dataset"),
                                   br(),
-                                  "How to Navigate")),
+                                  h3("Purpose of App"),
+                                  br(),
+                                  "This applet is intended to aid the user in classifying stars into one of six types using the values of 
+                                  six predictor variables described above. The applet will accomplish this by first focusing on some common
+                                  data exploration techniques, in order to get a general sense of some trends or patters in the data. Next,
+                                  the user can look at both unsupervised and supervised learning methods. Finally, the user can subset and
+                                  export the data if they would like to perform further analysis of their own.",
+                                  br(),
+                                  h3("How to Navigate"), 
+                                  br(),
+                                  "This applet contains five pages, which can be navigated to using the tabs towards the very top of the applet. 
+                                  Below is a brief description of what the user can find on these tabs.",
+                                  tags$ul(tags$li("Information: Current tab containing information on the data used and this applet"),
+                                          tags$li("Data Exploration: Obtain common numerical and graphical summaries"),
+                                          tags$li("Unsupervised Learning: Examine the clustering method for this data"),
+                                          tags$li("Supervised Learning: Examine K-Nearest Neighbors and Classification Tree methods"),
+                                          tags$li("Save Data: Subset the data and save the result as a .csv file")))),
                
                tabPanel("Data Exploration",
                         
@@ -110,7 +151,7 @@ shinyUI(
                                   )
                         
                         ),
-               tabPanel("Clustering",
+               tabPanel("Unsupervised Learning",
                         
                         sidebarPanel(
                           
@@ -151,7 +192,7 @@ shinyUI(
                                   plotOutput("clusterden"))
                         
                         ),
-               tabPanel("Modeling", 
+               tabPanel("Supervised Learning", 
                         
                         sidebarPanel(
                           
@@ -216,7 +257,8 @@ shinyUI(
         
                         ),
                         
-                        mainPanel(verbatimTextOutput("modelout"))
+                        mainPanel(uiOutput("formulaOut"),
+                                  verbatimTextOutput("modelout"))
                         
                         ),
                tabPanel("Save Data",
