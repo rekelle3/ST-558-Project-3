@@ -33,7 +33,7 @@ shinyUI(
                                      tags$li("Star Color: color of star using spectral analysis (Blue, Blue-white, White, Yellow-white, Yellow, Orange, Red)"),
                                      tags$li("Spectral Class: spectral class of star (A, B, F, K, M, O)"),
                                      tags$li("Star Type: type of star (Brown Dwarf  = 0, Red Dwarf = 1, White Dwarf = 2, Main Sequence = 3, Supergiant = 4, Hypergiant = 5)")),
-                                  "The .csv file read in as the data set for this applet can be
+                                  "The .csv file used as the data set for this applet can be
                                   obtained from the following link: ",
                                   a("Data", href="https://www.kaggle.com/deepu1109/star-dataset"),
                                   br(),
@@ -53,7 +53,10 @@ shinyUI(
                                           tags$li("Data Exploration: Obtain common numerical and graphical summaries"),
                                           tags$li("Unsupervised Learning: Examine the clustering method for this data"),
                                           tags$li("Supervised Learning: Examine K-Nearest Neighbors and Classification Tree methods"),
-                                          tags$li("Save Data: Subset the data and save the result as a .csv file")))),
+                                          tags$li("Save Data: Subset the data and save the result as a .csv file")),
+                                  "Each page contains a side panel where the user can specifiy inputs. Some pages contain action buttons 
+                                  that should be clicked on to display outputs, reset input values, or output plots/data.")),
+               
                
                tabPanel("Data Exploration",
                         
@@ -142,8 +145,10 @@ shinyUI(
                       
                         mainPanel(
                           
+                          h3("Summary Ouput"),
+                          
                           conditionalPanel(condition = "input.sumType == `graph`",
-                                           plotOutput("summarygraphic")),
+                                           plotlyOutput("summarygraphic")),
                           
                           conditionalPanel(condition = "input.sumType == `num`",
                                            verbatimTextOutput("summarynumeric"))
@@ -184,11 +189,15 @@ shinyUI(
                                                        c("Temperature" = "Temperature",
                                                          "Luminosity" = "Luminosity",
                                                          "Radius" = "Radius",
-                                                         "Absolute Magnitude" = "AbsoluteMagnitude")))
+                                                         "Absolute Magnitude" = "AbsoluteMagnitude")),
+                                           
+                                           downloadButton("downloadPlot", "Download Dendogram"))
                           
                           ),
                         
-                        mainPanel(verbatimTextOutput("clusterout"),
+                        mainPanel(
+                          h3("Clustering Output"),
+                          verbatimTextOutput("clusterout"),
                                   plotOutput("clusterden"))
                         
                         ),
@@ -200,7 +209,7 @@ shinyUI(
                                       c("K Nearest Neighbors" = "knn",
                                         "Random Forest" = "randfor")),
                           
-                          checkboxInput("uservalues", "Check box to select model settings"),
+                          checkboxInput("uservalues", "Check box to select model settings, otherwise all variables used as default"),
             
                           
                           conditionalPanel(condition = "input.uservalues == 1 && input.modelType == `knn`",
@@ -236,7 +245,8 @@ shinyUI(
                                            numericInput("radInput", "Radius:", 0),
                                            numericInput("absmagInput", "Absolute Magnitude:", 0),
                                            selectInput("colorInput", "Star Color:",
-                                                       c("Blue" = "Blue",
+                                                       c(" " = " ",
+                                                         "Blue" = "Blue",
                                                          "Blue-white" = "Blue-white",
                                                          "Orange" = "Orange",
                                                          "Red" = "Red",
@@ -244,20 +254,25 @@ shinyUI(
                                                          "Yellow" = "Yellow",
                                                          "Yellow-white" = "Yellow-white")),
                                            selectInput("classInput", "Spectral Class:",
-                                                       c("A" = "A",
+                                                       c(" " = " ",
+                                                         "A" = "A",
                                                          "B" = "B",
                                                          "F" = "F",
                                                          "K" = "K",
                                                          "M" = "M",
                                                          "O" = "O")),
-                                           actionButton("pred", "Display Prediction")),
+                                           actionButton("pred", "Display Prediction"),
+                                           actionButton("resetPred", "Click to Create a Prediction")),
                           
                           conditionalPanel("input.pred == 1",
                                            verbatimTextOutput("predOut"))
         
                         ),
                         
-                        mainPanel(uiOutput("formulaOut"),
+                        mainPanel(
+                          h3("Current Model Specifications"),
+                          uiOutput("formulaOut"),
+                          h3("Confusion Matrix and Accuracy of Model"),
                                   verbatimTextOutput("modelout"))
                         
                         ),
@@ -307,7 +322,9 @@ shinyUI(
                           downloadButton("downloadData", "Download")
                         ),
                         
-                        mainPanel(DT::dataTableOutput("starDataset"))
+                        mainPanel(
+                          h3("Table of Data"),
+                          DT::dataTableOutput("starDataset"))
                         
                         )
 )

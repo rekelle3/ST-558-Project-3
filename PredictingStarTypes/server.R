@@ -2,6 +2,7 @@ library(shiny)
 library(tidyverse)
 library(caret)
 library(mathjaxr)
+library(plotly)
 
 # Define server logic required to draw a histogram
 shinyServer(function(input, output, session) {
@@ -27,20 +28,24 @@ observeEvent(input$displaySum, {
         }
     })
     
-    output$summarygraphic <- renderPlot({
+    output$summarygraphic <- renderPlotly({
         
         if(input$graphType == "onebar"){
             g <- ggplot(starData, aes(x = starData[[input$varOneB]]))
-            g + geom_bar()
+            graph <- g + geom_bar() + labs(x = input$varOneB, title = paste0("Barplot of ", input$varOneB))
+            ggplotly(graph)
         } else if(input$graphType == "twobar"){
             g <- ggplot(starData, aes(x = starData[[input$varOneA]], fill = starData[[input$varTwoA]]))
-            g + geom_bar()
+            graph <- g + geom_bar(position = "dodge") + labs(x = input$varOneA, fill = input$varTwoA, title = paste0("Barplot of ", input$varOneA, " and ", input$varTwoA))
+            ggplotly(graph)
         } else if(input$graphType == "onehist"){
             g <- ggplot(starData, aes(x = starData[[input$varOneC]]))
-            g + geom_histogram()
+            graph <- g + geom_histogram() + labs(x = input$varOneC, title = paste0("Histogram of ", input$varOneC))
+            ggplotly(graph)
         } else {
             g <- ggplot(starData, aes(x = starData[[input$varOneE]], fill = starData[[input$varTwoE]]))
-            g + geom_histogram()
+            graph <- g + geom_histogram() + labs(x = input$varOneE, fill = input$varTwoE, title = paste0("Histogram of ", input$varOneE, " and ", input$varTwoE))
+            ggplotly(graph)
         }
         
     })
@@ -87,6 +92,15 @@ getCluster <- reactive({
             plot(getCluster())
         } 
     })
+    
+    output$downloadPlot <- downloadHandler(
+        filename = "dendogram.png",
+        content = function(file) {
+            png(file)
+            plot(getCluster())
+            dev.off()
+        }
+    )
     
     set.seed(1)
     train <- sample(1:nrow(starData), size = nrow(starData)*0.8)
@@ -165,6 +179,17 @@ getCluster <- reactive({
     
     output$predOut <- renderPrint({
         predict(getModel(), data.frame(Temperature = input$tempInput, Luminosity = input$lumInput, Radius = input$radInput, AbsoluteMagnitude = input$absmagInput, StarColor = input$colorInput, SpectralClass = input$classInput))
+    })
+    
+    observeEvent(input$resetPred, {
+        
+        updateNumericInput(session, "tempInput", value = 0)
+        updateNumericInput(session, "lumInput", value = 0)
+        updateNumericInput(session, "radInput", value = 0)
+        updateNumericInput(session, "absmagInput", value = 0)
+        updateSelectInput(session, "colorInput", selected = " ")
+        updateSelectInput(session, "classInput", selected = " ")
+        
     })
     
     getData <- reactive({
