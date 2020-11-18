@@ -5,6 +5,7 @@
 
 # Load in shiny package
 library(shiny)
+library(plotly)
 
 # Create UI for Star Type Prediction App
 shinyUI(
